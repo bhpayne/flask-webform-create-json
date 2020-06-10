@@ -13,6 +13,9 @@ from logging.handlers import RotatingFileHandler
 # https://nickjanetakis.com/blog/fix-missing-csrf-token-issues-with-flask
 from flask_wtf import FlaskForm, CSRFProtect, Form  # type: ignore
 
+from wtforms import StringField, validators, FieldList, FormField, IntegerField, RadioField, PasswordField, SubmitField, BooleanField  # type: ignore
+
+
 # https://hplgit.github.io/web4sciapps/doc/pub/._web4sa_flask004.html
 from flask import (
     Flask,
@@ -79,6 +82,16 @@ logger = logging.getLogger(__name__)
 logging.getLogger("matplotlib").setLevel(logging.WARNING)
 
 
+class MyInputForm(FlaskForm):
+    logger.info("[trace]")
+    #    r = FloatField(validators=[validators.InputRequired()])
+    #    r = FloatField()
+    name = StringField(
+        "a string", validators=[validators.InputRequired(), validators.Length(max=1000)]
+    )
+
+
+
 @app.route("/index", methods=["GET", "POST"])
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -89,9 +102,17 @@ def index():
     trace_id = str(random.randint(1000000, 9999999))
     logger.info("[trace page start " + trace_id + "]")
 
+    webform = MyInputForm(request.form)
+
+    if request.method == "POST":  #  and webform.validate():
+        logger.debug("request.form = %s", request.form)
+
+    list_of_opts = ['cow', 'dog', 'rabbit']
 
     logger.info("[trace page end " + trace_id + "]")
-    return render_template("index.html")
+    return render_template("index.html", 
+                           webform=webform,
+                           list_of_opts=list_of_opts)
 
 
 
