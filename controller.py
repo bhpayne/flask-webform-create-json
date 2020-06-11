@@ -3,6 +3,7 @@
 import json
 import os
 import random
+import shutil
 
 # https://docs.python.org/3/howto/logging.html
 import logging
@@ -89,15 +90,14 @@ class MyInputForm(FlaskForm):
     name = StringField(
         "a string", validators=[validators.InputRequired(), validators.Length(max=1000)]
     )
-
+    filename = StringField("name of JSON file (without extension)", validators=[validators.InputRequired(), validators.Length(max=1000)])
 
 
 @app.route("/index", methods=["GET", "POST"])
 @app.route("/", methods=["GET", "POST"])
 def index():
     """
-    the index is a static page intended to be the landing page for new users
-    >>> index()
+
     """
     trace_id = str(random.randint(1000000, 9999999))
     logger.info("[trace page start " + trace_id + "]")
@@ -106,6 +106,20 @@ def index():
 
     if request.method == "POST":  #  and webform.validate():
         logger.debug("request.form = %s", request.form)
+        #request.form = ImmutableMultiDict([('name', 'asdfaf'), ('input_id', 'dog'), ('submit_button', 'Submit')])
+       
+        my_dict = {}
+        my_dict["string"] = request.form['name']
+        my_dict["animal"] = request.form['input_id']
+        output_filename = request.form['filename'] + '.json'
+
+        with open(output_filename, 'w') as fil:
+            json.dump(my_dict, fil, indent=4, separators=(",", ": "))
+
+        shutil.copy(output_filename, "/home/appuser/app/static/" + output_filename)
+
+        return redirect(    url_for("static",filename=output_filename))
+        
 
     list_of_opts = ['cow', 'dog', 'rabbit']
 

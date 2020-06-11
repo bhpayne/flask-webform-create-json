@@ -35,7 +35,7 @@ WORKDIR       /home/appuser/app
 USER appuser
 
 COPY templates     /home/appuser/app/templates
-#COPY static        /home/appuser/app/static
+COPY static        /home/appuser/app/static
 COPY compute.py \
      config.py \
      controller.py \
